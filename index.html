@@ -114,13 +114,13 @@
             <h1>Daglig Eftertanke</h1>
             <button class="menu-button" onclick="toggleMenu()">☰</button>
         </div>
-        <div class="menu" id="menu">
-            <button onclick="setCharacter('original')">🧭 Original</button>
-            <button onclick="setCharacter('benny')">😎 Benny</button>
-            <button onclick="setCharacter('psykologisk')">🧠 Psykologisk</button>
-            <button onclick="setCharacter('spirituel')">🔮 Spirituel</button>
-            <button onclick="setCharacter('rå')">💪 Rå</button>
-        </div>
+            <div class="menu" id="menu">
+                <button onclick="setCharacter('original'); toggleMenu();">🧭 Original</button>
+                <button onclick="setCharacter('benny'); toggleMenu();">😎 Benny</button>
+                <button onclick="setCharacter('psykologisk'); toggleMenu();">🧠 Psykologisk</button>
+                <button onclick="setCharacter('spirituel'); toggleMenu();">🔮 Spirituel</button>
+                <button onclick="setCharacter('rå'); toggleMenu();">💪 Rå</button>
+            </div>
         <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
@@ -135,7 +135,6 @@
     function setCharacter(character) {
         selectedCharacter = character;
         updateContent();
-        toggleMenu();
     }
 
     function updateContent() {
