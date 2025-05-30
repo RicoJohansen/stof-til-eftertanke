@@ -18,57 +18,56 @@
             justify-content: center;
         }
 
-        .container {
-            max-width: 700px;
-            width: 100%;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin: 0;
-        }
-
-        .burger {
-            font-size: 1.5rem;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .dropdown {
-            display: none;
-            position: absolute;
-            right: 1rem;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border-radius: 5px;
-            z-index: 9999;
-            margin-top: 0.5rem;
-            padding: 0.5rem 0;
-            min-width: 150px;
-        }
-
-        .dropdown div {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .dropdown div:hover {
-            background-color: #f0f0f0;
-        }
-
         .card {
             background: white;
+            max-width: 700px;
+            width: 100%;
             padding: 2rem;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 10px;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-top: 0;
+        }
+
+        .menu-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .menu {
+            position: absolute;
+            top: 3rem;
+            right: 1rem;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .menu button {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .menu button:hover {
+            background: #f0f0f0;
         }
 
         .dato {
@@ -108,83 +107,66 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Daglig eftertanke</h1>
-            <div class="burger" onclick="toggleDropdown()">☰</div>
-            <div class="dropdown" id="dropdown">
-                <div onclick="setCharacter('Original')">🟡 Original</div>
-                <div onclick="setCharacter('Benny')">😎 Benny</div>
-                <div onclick="setCharacter('Psykologisk')">🧠 Psykologisk</div>
-                <div onclick="setCharacter('Spirituel')">🔮 Spirituel</div>
-                <div onclick="setCharacter('Rå')">💪 Rå</div>
-            </div>
+    <div class="card">
+        <h1>Daglig eftertanke</h1>
+        <button class="menu-button" onclick="toggleMenu()">☰</button>
+        <div class="menu" id="menu">
+            <button onclick="setCharacter('original')">🧭 Original</button>
+            <button onclick="setCharacter('benny')">😎 Benny</button>
+            <button onclick="setCharacter('psykologisk')">🧠 Psykologisk</button>
+            <button onclick="setCharacter('spirituel')">🔮 Spirituel</button>
+            <button onclick="setCharacter('rå')">💪 Rå</button>
         </div>
-
-        <div class="card">
-            <div id="tekst">Indlæser dagens tekst...</div>
-        </div>
+        <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
     <script>
-        let currentCharacter = "Original";
+        let selectedCharacter = "original";  // standard
 
-        function toggleDropdown() {
-            const dropdown = document.getElementById("dropdown");
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        function toggleMenu() {
+            const menu = document.getElementById("menu");
+            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
         }
 
         function setCharacter(character) {
-            currentCharacter = character;
-            toggleDropdown();
-            loadText();
+            selectedCharacter = character;
+            updateContent();
+            toggleMenu();
         }
 
-        function loadText() {
-            fetch("stof_til_eftertanke_clean_with_characters.json")
+        function updateContent() {
+            fetch("stof_til_eftertanke_clean_with_characters_updated.json")
             .then(res => res.json())
             .then(data => {
-                const today = new Date();
-                const dag = today.getDate();
-                const måned = today.getMonth() + 1;
+                const iDag = new Date();
+                const dag = iDag.getDate();
+                const måned = iDag.getMonth() + 1;
 
                 const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
                 const container = document.getElementById("tekst");
 
-                if (entry && entry[currentCharacter]) {
+                if (entry) {
                     const datoStr = `<div class="dato">${entry.dato}</div>`;
                     const hr = `<hr />`;
                     const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
-                    const citat = `<div class="citat">${entry[currentCharacter].citat}</div>`;
-                    const kilde = `<div class="kilde">${entry[currentCharacter].kilde}</div>`;
-                    const refleksion = `<div class="refleksion">${entry[currentCharacter].refleksion}</div>`;
+                    const citat = `<div class="citat">${entry[selectedCharacter + "_citat"] || entry.citat}</div>`;
+                    const kilde = `<div class="kilde">${entry[selectedCharacter + "_kilde"] || entry.kilde}</div>`;
+                    const refleksion = `<div class="refleksion">${entry[selectedCharacter + "_refleksion"] || entry.refleksion}</div>`;
 
                     container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
                 } else {
                     container.innerHTML = "Dagens tekst kunne ikke findes.";
                 }
-            })
-            .catch(error => {
-                console.error(error);
-                document.getElementById("tekst").innerHTML = "Der opstod en fejl under indlæsning.";
             });
         }
 
-        // Luk dropdown hvis der klikkes udenfor
-        window.onclick = function(event) {
-            const dropdown = document.getElementById("dropdown");
-            if (!event.target.matches('.burger')) {
-                dropdown.style.display = "none";
-            }
-        }
+        // Kør ved første load
+        updateContent();
 
-        // Indlæs første gang
-        document.addEventListener("DOMContentLoaded", loadText);
-
-        // Opdater når app vender tilbage
+        // Automatisk opdatering når appen vender tilbage
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden) {
-                loadText();
+                updateContent();
             }
         });
     </script>
