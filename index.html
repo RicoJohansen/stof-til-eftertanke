@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="da">
 <head>
@@ -26,6 +25,44 @@
             padding: 2rem;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 10px;
+            position: relative;
+        }
+
+        .menu-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .menu {
+            display: none;
+            position: absolute;
+            top: 3rem;
+            right: 1rem;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .menu button {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .menu button:hover {
+            background-color: #f0f0f0;
         }
 
         h1 {
@@ -71,11 +108,32 @@
 </head>
 <body>
     <div class="card">
+        <button class="menu-button" onclick="toggleMenu()">☰</button>
+        <div class="menu" id="menu">
+            <button onclick="changeCharacter('original')">🧭 Original</button>
+            <button onclick="changeCharacter('benny')">😎 Benny</button>
+            <button onclick="changeCharacter('psykologisk')">🧠 Psykologisk</button>
+            <button onclick="changeCharacter('spirituel')">🔮 Spirituel</button>
+            <button onclick="changeCharacter('rå')">💪 Rå</button>
+        </div>
         <h1>Daglig eftertanke</h1>
         <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
     <script>
+        // Toggle menu
+        function toggleMenu() {
+            const menu = document.getElementById("menu");
+            menu.style.display = (menu.style.display === "block") ? "none" : "block";
+        }
+
+        // Håndter karakterer (dummy-funktion)
+        function changeCharacter(character) {
+            alert("Karakter valgt: " + character);
+            document.getElementById("menu").style.display = "none";
+            // Her kan du tilføje din logik til at skifte karakter
+        }
+
         fetch("stof_til_eftertanke_clean.json")
         .then(res => res.json())
         .then(data => {
@@ -99,7 +157,7 @@
                 container.innerHTML = "Dagens tekst kunne ikke findes.";
             }
         });
-        
+
         // Automatisk opdatering når appen vender tilbage
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden) {
