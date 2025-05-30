@@ -125,51 +125,54 @@
     </div>
 
 <script>
-        let selectedCharacter = "original";  // standard
+    let selectedCharacter = "original";  // standard
 
-        function toggleMenu() {
-            const menu = document.getElementById("menu");
-            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-        }
+    function toggleMenu() {
+        const menu = document.getElementById("menu");
+        menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    }
 
-        function setCharacter(character) {
-            selectedCharacter = character;
-            updateContent();
-            toggleMenu();
-        }
+    function setCharacter(character) {
+        selectedCharacter = character;
+        updateContent();
+        toggleMenu();
+    }
 
-        function updateContent() {
-            fetch("stof_til_eftertanke_clean_with_characters_updated.json")
-            .then(res => res.json())
-            .then(data => {
-                const iDag = new Date();
-                const dag = iDag.getDate();
-                const måned = iDag.getMonth() + 1;
+    function updateContent() {
+        fetch("stof_til_eftertanke_clean_with_characters_updated.json")
+        .then(res => res.json())
+        .then(data => {
+            const iDag = new Date();
+            const dag = iDag.getDate();
+            const måned = iDag.getMonth() + 1;
 
-                const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
-                const container = document.getElementById("tekst");
+            const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
+            const container = document.getElementById("tekst");
 
-                if (entry) {
-                    const datoStr = `<div class="dato">${entry.dato}</div>`;
-                    const hr = `<hr />`;
-                    const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
-                    const citat = `<div class="citat">${entry[selectedCharacter + "_citat"] || entry.citat}</div>`;
-                    const kilde = `<div class="kilde">${entry[selectedCharacter + "_kilde"] || entry.kilde}</div>`;
-                    const refleksion = `<div class="refleksion">${entry[selectedCharacter + "_refleksion"] || entry.refleksion}</div>`;
+            if (entry) {
+                const datoStr = `<div class="dato">${entry.dato}</div>`;
+                const hr = `<hr />`;
+                const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
+                const citat = `<div class="citat">${entry[selectedCharacter + "_citat"] || entry.citat}</div>`;
+                const kilde = `<div class="kilde">${entry[selectedCharacter + "_kilde"] || entry.kilde}</div>`;
+                const refleksion = `<div class="refleksion">${entry[selectedCharacter + "_refleksion"] || entry.refleksion}</div>`;
 
-                    container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
-                } else {
-                    container.innerHTML = "Dagens tekst kunne ikke findes.";
-                }
-            });
-        }  // <-- HER er den manglende klamme
-
-        // Automatisk opdatering når appen vender tilbage
-        document.addEventListener("visibilitychange", function() {
-            if (!document.hidden) {
-                location.reload();
+                container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
+            } else {
+                container.innerHTML = "Dagens tekst kunne ikke findes.";
             }
         });
-    </script>
+    }
+
+    // Automatisk opdatering når appen vender tilbage
+    document.addEventListener("visibilitychange", function() {
+        if (!document.hidden) {
+            location.reload();
+        }
+    });
+
+    // Kør ved første load og vis "Original" som standard
+    setCharacter("original");
+</script>
 </body>
 </html>
