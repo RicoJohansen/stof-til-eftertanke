@@ -36,6 +36,27 @@
         .burger-menu {
             font-size: 2rem;
             cursor: pointer;
+            position: relative;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            z-index: 1;
+            margin-top: 5px;
+        }
+
+        .dropdown div {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+
+        .dropdown div:hover {
+            background-color: #f0f0f0;
         }
 
         .card {
@@ -86,46 +107,72 @@
 <body>
     <div class="header">
         <h1>Daglig eftertanke</h1>
-        <div class="burger-menu" onclick="toggleMenu()">☰</div>
+        <div class="burger-menu" onclick="toggleDropdown()">☰
+            <div class="dropdown" id="dropdown">
+                <div onclick="setCharacter('Original')">🟡 Original</div>
+                <div onclick="setCharacter('Benny')">😎 Benny</div>
+                <div onclick="setCharacter('Psykologisk')">🧠 Psykologisk</div>
+                <div onclick="setCharacter('Spirituel')">🔮 Spirituel</div>
+                <div onclick="setCharacter('Rå')">💪 Rå</div>
+            </div>
+        </div>
     </div>
     <div class="card">
         <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
     <script>
-        function toggleMenu() {
-            alert("Burger-menu åbnet (funktionalitet kan tilføjes her)");
+        let selectedCharacter = 'Original'; // Standardværdien
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById("dropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
         }
 
-        fetch("stof_til_eftertanke_clean_with_characters.json")
-        .then(res => res.json())
-        .then(data => {
-            const iDag = new Date();
-            const dag = iDag.getDate();
-            const måned = iDag.getMonth() + 1;
+        function setCharacter(character) {
+            selectedCharacter = character;
+            loadText();
+            toggleDropdown();
+        }
 
-            const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
-            const container = document.getElementById("tekst");
+        function loadText() {
+            fetch("stof_til_eftertanke_clean_with_characters.json")
+            .then(res => res.json())
+            .then(data => {
+                const iDag = new Date();
+                const dag = iDag.getDate();
+                const måned = iDag.getMonth() + 1;
 
-            if (entry) {
-                const datoStr = `<div class="dato">${entry.dato}</div>`;
-                const hr = `<hr />`;
-                const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
-                const citat = `<div class="citat">${entry.citat}</div>`;
-                const kilde = `<div class="kilde">${entry.kilde}</div>`;
-                const refleksion = `<div class="refleksion">${entry.refleksion}</div>`;
+                const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
+                const container = document.getElementById("tekst");
 
-                container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
-            } else {
-                container.innerHTML = "Dagens tekst kunne ikke findes.";
-            }
-        });
+                if (entry && entry[selectedCharacter]) {
+                    const datoStr = `<div class="dato">${entry.dato}</div>`;
+                    const hr = `<hr />`;
+                    const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
+                    const citat = `<div class="citat">${entry[selectedCharacter].citat}</div>`;
+                    const kilde = `<div class="kilde">${entry[selectedCharacter].kilde}</div>`;
+                    const refleksion = `<div class="refleksion">${entry[selectedCharacter].refleksion}</div>`;
+
+                    container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
+                } else {
+                    container.innerHTML = "Dagens tekst kunne ikke findes.";
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("tekst").innerHTML = "Fejl ved indlæsning af dagens tekst.";
+            });
+        }
 
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden) {
-                location.reload();
+                loadText();
             }
         });
+
+        // Initial load
+        loadText();
     </script>
 </body>
 </html>
