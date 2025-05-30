@@ -25,49 +25,17 @@
             padding: 2rem;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 10px;
-            position: relative;
-        }
-
-        .menu-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .menu {
-            display: none;
-            position: absolute;
-            top: 3rem;
-            right: 1rem;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .menu button {
-            display: block;
-            width: 100%;
-            padding: 0.5rem 1rem;
-            border: none;
-            background: none;
-            text-align: left;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .menu button:hover {
-            background-color: #f0f0f0;
         }
 
         h1 {
             text-align: center;
             font-size: 2rem;
+        }
+
+        #character-select {
+            width: 100%;
+            margin-bottom: 1rem;
+            font-size: 1rem;
         }
 
         .dato {
@@ -108,60 +76,59 @@
 </head>
 <body>
     <div class="card">
-        <button class="menu-button" onclick="toggleMenu()">☰</button>
-        <div class="menu" id="menu">
-            <button onclick="changeCharacter('original')">🧭 Original</button>
-            <button onclick="changeCharacter('benny')">😎 Benny</button>
-            <button onclick="changeCharacter('psykologisk')">🧠 Psykologisk</button>
-            <button onclick="changeCharacter('spirituel')">🔮 Spirituel</button>
-            <button onclick="changeCharacter('rå')">💪 Rå</button>
-        </div>
         <h1>Daglig eftertanke</h1>
+        <label for="character-select">Vælg karakter:</label>
+        <select id="character-select">
+            <option value="original">🧭 Original</option>
+            <option value="benny">😎 Benny</option>
+            <option value="psykologisk">🧠 Psykologisk</option>
+            <option value="spirituel">🔮 Spirituel</option>
+            <option value="rå">💪 Rå</option>
+        </select>
         <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
     <script>
-        // Toggle menu
-        function toggleMenu() {
-            const menu = document.getElementById("menu");
-            menu.style.display = (menu.style.display === "block") ? "none" : "block";
-        }
+        let selectedCharacter = "original";  // standard
 
-        // Håndter karakterer (dummy-funktion)
-        function changeCharacter(character) {
-            alert("Karakter valgt: " + character);
-            document.getElementById("menu").style.display = "none";
-            // Her kan du tilføje din logik til at skifte karakter
-        }
-
-        fetch("stof_til_eftertanke_clean.json")
-        .then(res => res.json())
-        .then(data => {
-            const iDag = new Date();
-            const dag = iDag.getDate();
-            const måned = iDag.getMonth() + 1;
-
-            const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
-            const container = document.getElementById("tekst");
-
-            if (entry) {
-                const datoStr = `<div class="dato">${entry.dato}</div>`;
-                const hr = `<hr />`;
-                const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
-                const citat = `<div class="citat">${entry.citat}</div>`;
-                const kilde = `<div class="kilde">${entry.kilde}</div>`;
-                const refleksion = `<div class="refleksion">${entry.refleksion}</div>`;
-
-                container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
-            } else {
-                container.innerHTML = "Dagens tekst kunne ikke findes.";
-            }
+        document.getElementById("character-select").addEventListener("change", function() {
+            selectedCharacter = this.value;
+            updateContent();
         });
+
+        function updateContent() {
+            fetch("stof_til_eftertanke_clean_with_characters_updated.json")
+            .then(res => res.json())
+            .then(data => {
+                const iDag = new Date();
+                const dag = iDag.getDate();
+                const måned = iDag.getMonth() + 1;
+
+                const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
+                const container = document.getElementById("tekst");
+
+                if (entry) {
+                    const datoStr = `<div class="dato">${entry.dato}</div>`;
+                    const hr = `<hr />`;
+                    const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
+                    const citat = `<div class="citat">${entry[selectedCharacter + "_citat"] || entry.citat}</div>`;
+                    const kilde = `<div class="kilde">${entry[selectedCharacter + "_kilde"] || entry.kilde}</div>`;
+                    const refleksion = `<div class="refleksion">${entry[selectedCharacter + "_refleksion"] || entry.refleksion}</div>`;
+
+                    container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
+                } else {
+                    container.innerHTML = "Dagens tekst kunne ikke findes.";
+                }
+            });
+        }
+
+        // Kør ved første load
+        updateContent();
 
         // Automatisk opdatering når appen vender tilbage
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden) {
-                location.reload();
+                updateContent();
             }
         });
     </script>
