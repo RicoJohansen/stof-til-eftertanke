@@ -15,44 +15,49 @@
             padding: 1rem;
             color: #111;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 700px;
-            width: 100%;
             margin-bottom: 1rem;
         }
 
-        .header h1 {
+        h1 {
             font-size: 2rem;
             margin: 0;
         }
 
-        .burger-menu {
-            font-size: 2rem;
+        .burger {
+            font-size: 1.5rem;
             cursor: pointer;
-            position: relative;
+            user-select: none;
         }
 
         .dropdown {
             display: none;
             position: absolute;
-            right: 0;
+            right: 1rem;
             background-color: white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 5px;
-            z-index: 1;
-            margin-top: 5px;
+            z-index: 9999;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0;
+            min-width: 150px;
         }
 
         .dropdown div {
             padding: 0.5rem 1rem;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .dropdown div:hover {
@@ -61,8 +66,6 @@
 
         .card {
             background: white;
-            max-width: 700px;
-            width: 100%;
             padding: 2rem;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 10px;
@@ -105,9 +108,10 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Daglig eftertanke</h1>
-        <div class="burger-menu" onclick="toggleDropdown()">☰
+    <div class="container">
+        <div class="header">
+            <h1>Daglig eftertanke</h1>
+            <div class="burger" onclick="toggleDropdown()">☰</div>
             <div class="dropdown" id="dropdown">
                 <div onclick="setCharacter('Original')">🟡 Original</div>
                 <div onclick="setCharacter('Benny')">😎 Benny</div>
@@ -116,13 +120,14 @@
                 <div onclick="setCharacter('Rå')">💪 Rå</div>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <div id="tekst">Indlæser dagens tekst...</div>
+
+        <div class="card">
+            <div id="tekst">Indlæser dagens tekst...</div>
+        </div>
     </div>
 
     <script>
-        let selectedCharacter = 'Original'; // Standardværdien
+        let currentCharacter = "Original";
 
         function toggleDropdown() {
             const dropdown = document.getElementById("dropdown");
@@ -130,49 +135,58 @@
         }
 
         function setCharacter(character) {
-            selectedCharacter = character;
-            loadText();
+            currentCharacter = character;
             toggleDropdown();
+            loadText();
         }
 
         function loadText() {
             fetch("stof_til_eftertanke_clean_with_characters.json")
             .then(res => res.json())
             .then(data => {
-                const iDag = new Date();
-                const dag = iDag.getDate();
-                const måned = iDag.getMonth() + 1;
+                const today = new Date();
+                const dag = today.getDate();
+                const måned = today.getMonth() + 1;
 
                 const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
                 const container = document.getElementById("tekst");
 
-                if (entry && entry[selectedCharacter]) {
+                if (entry && entry[currentCharacter]) {
                     const datoStr = `<div class="dato">${entry.dato}</div>`;
                     const hr = `<hr />`;
                     const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
-                    const citat = `<div class="citat">${entry[selectedCharacter].citat}</div>`;
-                    const kilde = `<div class="kilde">${entry[selectedCharacter].kilde}</div>`;
-                    const refleksion = `<div class="refleksion">${entry[selectedCharacter].refleksion}</div>`;
+                    const citat = `<div class="citat">${entry[currentCharacter].citat}</div>`;
+                    const kilde = `<div class="kilde">${entry[currentCharacter].kilde}</div>`;
+                    const refleksion = `<div class="refleksion">${entry[currentCharacter].refleksion}</div>`;
 
                     container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
                 } else {
                     container.innerHTML = "Dagens tekst kunne ikke findes.";
                 }
             })
-            .catch(err => {
-                console.error(err);
-                document.getElementById("tekst").innerHTML = "Fejl ved indlæsning af dagens tekst.";
+            .catch(error => {
+                console.error(error);
+                document.getElementById("tekst").innerHTML = "Der opstod en fejl under indlæsning.";
             });
         }
 
+        // Luk dropdown hvis der klikkes udenfor
+        window.onclick = function(event) {
+            const dropdown = document.getElementById("dropdown");
+            if (!event.target.matches('.burger')) {
+                dropdown.style.display = "none";
+            }
+        }
+
+        // Indlæs første gang
+        document.addEventListener("DOMContentLoaded", loadText);
+
+        // Opdater når app vender tilbage
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden) {
                 loadText();
             }
         });
-
-        // Initial load
-        loadText();
     </script>
 </body>
 </html>
