@@ -25,17 +25,49 @@
             padding: 2rem;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 10px;
+            position: relative;
         }
 
         h1 {
             text-align: center;
             font-size: 2rem;
+            margin-top: 0;
         }
 
-        #character-select {
-            width: 100%;
-            margin-bottom: 1rem;
+        .menu-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .menu {
+            position: absolute;
+            top: 3rem;
+            right: 1rem;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .menu button {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
             font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .menu button:hover {
+            background: #f0f0f0;
         }
 
         .dato {
@@ -77,24 +109,30 @@
 <body>
     <div class="card">
         <h1>Daglig eftertanke</h1>
-        <label for="character-select">Vælg karakter:</label>
-        <select id="character-select">
-            <option value="original">🧭 Original</option>
-            <option value="benny">😎 Benny</option>
-            <option value="psykologisk">🧠 Psykologisk</option>
-            <option value="spirituel">🔮 Spirituel</option>
-            <option value="rå">💪 Rå</option>
-        </select>
+        <button class="menu-button" onclick="toggleMenu()">☰</button>
+        <div class="menu" id="menu">
+            <button onclick="setCharacter('original')">🧭 Original</button>
+            <button onclick="setCharacter('benny')">😎 Benny</button>
+            <button onclick="setCharacter('psykologisk')">🧠 Psykologisk</button>
+            <button onclick="setCharacter('spirituel')">🔮 Spirituel</button>
+            <button onclick="setCharacter('rå')">💪 Rå</button>
+        </div>
         <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
     <script>
         let selectedCharacter = "original";  // standard
 
-        document.getElementById("character-select").addEventListener("change", function() {
-            selectedCharacter = this.value;
+        function toggleMenu() {
+            const menu = document.getElementById("menu");
+            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+        }
+
+        function setCharacter(character) {
+            selectedCharacter = character;
             updateContent();
-        });
+            toggleMenu();
+        }
 
         function updateContent() {
             fetch("stof_til_eftertanke_clean_with_characters_updated.json")
