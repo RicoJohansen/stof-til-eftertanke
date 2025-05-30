@@ -28,16 +28,18 @@
             position: relative;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         h1 {
-            text-align: center;
             font-size: 2rem;
-            margin-top: 0;
+            margin: 0;
         }
 
         .menu-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
             background: none;
             border: none;
             font-size: 1.5rem;
@@ -108,8 +110,10 @@
 </head>
 <body>
     <div class="card">
-        <h1>Daglig eftertanke</h1>
-        <button class="menu-button" onclick="toggleMenu()">☰</button>
+        <div class="header">
+            <h1>Daglig eftertanke</h1>
+            <button class="menu-button" onclick="toggleMenu()">☰</button>
+        </div>
         <div class="menu" id="menu">
             <button onclick="setCharacter('original')">🧭 Original</button>
             <button onclick="setCharacter('benny')">😎 Benny</button>
