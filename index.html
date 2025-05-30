@@ -124,7 +124,7 @@
         <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
-    <script>
+<script>
         let selectedCharacter = "original";  // standard
 
         function toggleMenu() {
@@ -162,7 +162,8 @@
                     container.innerHTML = "Dagens tekst kunne ikke findes.";
                 }
             });
-        }
+        }  // <-- HER er den manglende klamme
+
         // Automatisk opdatering når appen vender tilbage
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden) {
