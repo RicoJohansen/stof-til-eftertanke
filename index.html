@@ -161,15 +161,13 @@
                 } else {
                     container.innerHTML = "Dagens tekst kunne ikke findes.";
                 }
-            });
-        } 
-
-        // Kør ved første load
-        updateContent();
-
+        });
+        
         // Automatisk opdatering når appen vender tilbage
-        window.addEventListener("pageshow", function() {
-            updateContent();
+        document.addEventListener("visibilitychange", function() {
+            if (!document.hidden) {
+                location.reload();
+            }
         });
     </script>
 </body>
