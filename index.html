@@ -15,7 +15,27 @@
             padding: 1rem;
             color: #111;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 700px;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .burger-menu {
+            font-size: 2rem;
+            cursor: pointer;
         }
 
         .card {
@@ -25,49 +45,6 @@
             padding: 2rem;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 10px;
-            position: relative;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 2rem;
-            margin-top: 0;
-        }
-
-        .menu-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .menu {
-            position: absolute;
-            top: 3rem;
-            right: 1rem;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-
-        .menu button {
-            background: none;
-            border: none;
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .menu button:hover {
-            background: #f0f0f0;
         }
 
         .dato {
@@ -107,66 +84,46 @@
     </style>
 </head>
 <body>
-    <div class="card">
+    <div class="header">
         <h1>Daglig eftertanke</h1>
-        <button class="menu-button" onclick="toggleMenu()">☰</button>
-        <div class="menu" id="menu">
-            <button onclick="setCharacter('original')">🧭 Original</button>
-            <button onclick="setCharacter('benny')">😎 Benny</button>
-            <button onclick="setCharacter('psykologisk')">🧠 Psykologisk</button>
-            <button onclick="setCharacter('spirituel')">🔮 Spirituel</button>
-            <button onclick="setCharacter('rå')">💪 Rå</button>
-        </div>
+        <div class="burger-menu" onclick="toggleMenu()">☰</div>
+    </div>
+    <div class="card">
         <div id="tekst">Indlæser dagens tekst...</div>
     </div>
 
     <script>
-        let selectedCharacter = "original";  // standard
-
         function toggleMenu() {
-            const menu = document.getElementById("menu");
-            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+            alert("Burger-menu åbnet (funktionalitet kan tilføjes her)");
         }
 
-        function setCharacter(character) {
-            selectedCharacter = character;
-            updateContent();
-            toggleMenu();
-        }
+        fetch("stof_til_eftertanke_clean_with_characters.json")
+        .then(res => res.json())
+        .then(data => {
+            const iDag = new Date();
+            const dag = iDag.getDate();
+            const måned = iDag.getMonth() + 1;
 
-        function updateContent() {
-            fetch("stof_til_eftertanke_clean_with_characters_updated.json")
-            .then(res => res.json())
-            .then(data => {
-                const iDag = new Date();
-                const dag = iDag.getDate();
-                const måned = iDag.getMonth() + 1;
+            const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
+            const container = document.getElementById("tekst");
 
-                const entry = data.find(e => e.dag_nummer === dag && e.mrd_nummer === måned);
-                const container = document.getElementById("tekst");
+            if (entry) {
+                const datoStr = `<div class="dato">${entry.dato}</div>`;
+                const hr = `<hr />`;
+                const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
+                const citat = `<div class="citat">${entry.citat}</div>`;
+                const kilde = `<div class="kilde">${entry.kilde}</div>`;
+                const refleksion = `<div class="refleksion">${entry.refleksion}</div>`;
 
-                if (entry) {
-                    const datoStr = `<div class="dato">${entry.dato}</div>`;
-                    const hr = `<hr />`;
-                    const overskrift = `<div class="overskrift">${entry.overskrift}</div>`;
-                    const citat = `<div class="citat">${entry[selectedCharacter + "_citat"] || entry.citat}</div>`;
-                    const kilde = `<div class="kilde">${entry[selectedCharacter + "_kilde"] || entry.kilde}</div>`;
-                    const refleksion = `<div class="refleksion">${entry[selectedCharacter + "_refleksion"] || entry.refleksion}</div>`;
+                container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
+            } else {
+                container.innerHTML = "Dagens tekst kunne ikke findes.";
+            }
+        });
 
-                    container.innerHTML = datoStr + hr + overskrift + citat + kilde + refleksion;
-                } else {
-                    container.innerHTML = "Dagens tekst kunne ikke findes.";
-                }
-            });
-        }
-
-        // Kør ved første load
-        updateContent();
-
-        // Automatisk opdatering når appen vender tilbage
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden) {
-                updateContent();
+                location.reload();
             }
         });
     </script>
